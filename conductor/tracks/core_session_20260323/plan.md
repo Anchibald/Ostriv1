@@ -1,9 +1,9 @@
 # Implementation Plan: Core RPG Session & Terminal Sync
 
 ## Phase 1: Project Scaffolding & Setup
-- [ ] **Task: Initialize Backend Structure**
-    - [ ] Create basic Fastify server with Socket.io configuration.
-    - [ ] Define initial session management logic (room creation/joining).
+- [x] **Task: Initialize Backend Structure** (354b8ef)
+    - [x] Create basic Fastify server with Socket.io configuration.
+    - [x] Define initial session management logic (room creation/joining).
 - [ ] **Task: Initialize Frontend Structure**
     - [ ] Create Vite + React (TypeScript) project.
     - [ ] Configure Tailwind CSS and apply "Island Survival" theme colors.
