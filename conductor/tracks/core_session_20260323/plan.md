@@ -9,14 +9,14 @@
     - [x] Configure Tailwind CSS and apply "Island Survival" theme colors.
 - [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)** (cb30fd7)
 
-## Phase 2: Core Real-time Functionality
+## Phase 2: Core Real-time Functionality [checkpoint: 3fbd387]
 - [x] **Task: Implement Real-time Sync** (db559ec)
     - [x] Setup Socket.io events for broadcasting messages and dice rolls.
     - [x] Develop basic terminal component for displaying game logs.
 - [x] **Task: Implement Command System** (e5aacd5)
     - [x] Develop `/roll` command on frontend and backend (random number generation).
     - [x] Develop `/emote` command for character narrative actions.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)** (3fbd387)
 
 ## Phase 3: Persistence & Polish
 - [ ] **Task: Simple JSON Persistence**
