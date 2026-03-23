@@ -43,7 +43,7 @@ function App() {
           setSessionId(id)
           setIsGM(false)
         } else {
-          alert('Session not found!')
+          alert('Сесію не знайдено!')
         }
       })
     }
@@ -51,7 +51,7 @@ function App() {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold text-island-sand mb-8">Island Survival Logbook</h1>
+      <h1 className="text-4xl font-bold text-island-sand mb-8 text-center">Журнал виживання на острові</h1>
       
       <div className="bg-island-wood border-2 border-island-sand p-6 rounded-lg shadow-xl w-full max-w-md">
         {!sessionId ? (
@@ -60,12 +60,12 @@ function App() {
               onClick={createSession}
               className="w-full py-2 bg-island-forest hover:opacity-80 text-island-sand border border-island-sand font-bold"
             >
-              [ START NEW EXPEDITION ]
+              [ РОЗПОЧАТИ НОВУ ЕКСПЕДИЦІЮ ]
             </button>
             <div className="flex space-x-2">
               <input 
                 type="text" 
-                placeholder="Enter Session ID..."
+                placeholder="Введіть ID сесії..."
                 className="flex-1 bg-island-wood border border-island-sand p-2 text-island-sand focus:outline-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') joinSession((e.target as HTMLInputElement).value)
@@ -78,27 +78,27 @@ function App() {
                 }}
                 className="px-4 py-2 bg-island-ocean hover:opacity-80 text-island-sand border border-island-sand font-bold"
               >
-                JOIN
+                УВІЙТИ
               </button>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="border-b border-island-sand pb-2 mb-4">
-              <p className="text-island-sand">Status: <span className="text-island-forest font-bold">READY</span></p>
-              <p className="text-island-sand">Role: <span className="font-bold">{isGM ? 'Expedition Guide (GM)' : 'Survivor'}</span></p>
-              <p className="text-island-sand">Session ID: <span className="font-bold text-island-ocean">{sessionId}</span></p>
+              <p className="text-island-sand">Статус: <span className="text-island-forest font-bold">ГОТОВИЙ</span></p>
+              <p className="text-island-sand">Роль: <span className="font-bold">{isGM ? 'Провідник експедиції (GM)' : 'Вижилий'}</span></p>
+              <p className="text-island-sand">ID сесії: <span className="font-bold text-island-ocean">{sessionId}</span></p>
             </div>
             <div className="h-64 overflow-y-auto bg-black p-4 text-island-sand text-sm border border-island-sand">
-              <p className="text-island-forest">[SYSTEM] Logs gathering...</p>
-              <p>[SYSTEM] Expedition started on island.</p>
-              <p>[SYSTEM] Welcome, {isGM ? 'Guide' : 'Survivor'}!</p>
+              <p className="text-island-forest">[СИСТЕМА] Збір логів...</p>
+              <p>[СИСТЕМА] Експедиція на острові розпочалася.</p>
+              <p>[СИСТЕМА] Вітаємо, {isGM ? 'Провіднику' : 'Вижилий'}!</p>
             </div>
           </div>
         )}
       </div>
       <p className="mt-8 text-island-sand text-xs opacity-50">
-        Connected: {connected ? 'YES' : 'NO'} | Server: localhost:3000
+        Підключено до мережі: {connected ? 'ТАК' : 'НІ'} | Сервер: localhost:3000
       </p>
     </div>
   )
