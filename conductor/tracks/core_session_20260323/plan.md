@@ -22,7 +22,7 @@
 - [x] **Task: Simple JSON Persistence** (401054b)
     - [x] Integrate `lowdb` for saving and loading session state.
     - [x] Ensure players can reconnect and retrieve history.
-- [ ] **Task: UI/UX Polishing**
-    - [ ] Apply final "Island Survival" styles to terminal and character sheets.
-    - [ ] Add mobile-friendly touch optimizations.
+- [x] **Task: UI/UX Polishing** (d123452)
+    - [x] Apply final "Island Survival" styles to terminal and character sheets.
+    - [x] Add mobile-friendly touch optimizations.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
