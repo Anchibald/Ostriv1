@@ -73,15 +73,19 @@ function App() {
 
   const joinSession = (id: string) => {
     if (socket) {
-      socket.emit('join-session', { sessionId: id }, (res: { success: boolean }) => {
+      socket.emit('join-session', { sessionId: id }, (res: { success: boolean, history?: LogEntry[] }) => {
         if (res.success) {
           setSessionId(id)
           setIsGM(false)
-          setLogs([{
-            type: 'system',
-            message: `Ви приєдналися до експедиції ${id}`,
-            timestamp: new Date().toISOString()
-          }])
+          if (res.history) {
+            setLogs(res.history)
+          } else {
+            setLogs([{
+              type: 'system',
+              message: `Ви приєдналися до експедиції ${id}`,
+              timestamp: new Date().toISOString()
+            }])
+          }
         } else {
           alert('Сесію не знайдено!')
         }
