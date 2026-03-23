@@ -10,9 +10,9 @@
 - [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)** (cb30fd7)
 
 ## Phase 2: Core Real-time Functionality
-- [ ] **Task: Implement Real-time Sync**
-    - [ ] Setup Socket.io events for broadcasting messages and dice rolls.
-    - [ ] Develop basic terminal component for displaying game logs.
+- [x] **Task: Implement Real-time Sync** (db559ec)
+    - [x] Setup Socket.io events for broadcasting messages and dice rolls.
+    - [x] Develop basic terminal component for displaying game logs.
 - [ ] **Task: Implement Command System**
     - [ ] Develop `/roll` command on frontend and backend (random number generation).
     - [ ] Develop `/emote` command for character narrative actions.
