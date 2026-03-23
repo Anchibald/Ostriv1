@@ -19,9 +19,9 @@
 - [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)** (3fbd387)
 
 ## Phase 3: Persistence & Polish
-- [ ] **Task: Simple JSON Persistence**
-    - [ ] Integrate `lowdb` for saving and loading session state.
-    - [ ] Ensure players can reconnect and retrieve history.
+- [x] **Task: Simple JSON Persistence** (401054b)
+    - [x] Integrate `lowdb` for saving and loading session state.
+    - [x] Ensure players can reconnect and retrieve history.
 - [ ] **Task: UI/UX Polishing**
     - [ ] Apply final "Island Survival" styles to terminal and character sheets.
     - [ ] Add mobile-friendly touch optimizations.
