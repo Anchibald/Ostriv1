@@ -13,9 +13,9 @@
 - [x] **Task: Implement Real-time Sync** (db559ec)
     - [x] Setup Socket.io events for broadcasting messages and dice rolls.
     - [x] Develop basic terminal component for displaying game logs.
-- [ ] **Task: Implement Command System**
-    - [ ] Develop `/roll` command on frontend and backend (random number generation).
-    - [ ] Develop `/emote` command for character narrative actions.
+- [x] **Task: Implement Command System** (e5aacd5)
+    - [x] Develop `/roll` command on frontend and backend (random number generation).
+    - [x] Develop `/emote` command for character narrative actions.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
 
 ## Phase 3: Persistence & Polish
