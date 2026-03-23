@@ -4,9 +4,9 @@
 - [x] **Task: Initialize Backend Structure** (354b8ef)
     - [x] Create basic Fastify server with Socket.io configuration.
     - [x] Define initial session management logic (room creation/joining).
-- [ ] **Task: Initialize Frontend Structure**
-    - [ ] Create Vite + React (TypeScript) project.
-    - [ ] Configure Tailwind CSS and apply "Island Survival" theme colors.
+- [x] **Task: Initialize Frontend Structure** (b471802)
+    - [x] Create Vite + React (TypeScript) project.
+    - [x] Configure Tailwind CSS and apply "Island Survival" theme colors.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
 ## Phase 2: Core Real-time Functionality
