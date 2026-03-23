@@ -1,0 +1,26 @@
+{
+  "name": "island-survival-rpg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "fastify": "^4.29.1",
+    "fastify-socket.io": "^5.1.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "@tapjs/test": "^4.4.2",
+    "@types/node": "^25.5.0",
+    "@types/tap": "^15.0.12",
+    "tap": "^21.6.2",
+    "tsx": "^4.21.0"
+  }
+}
