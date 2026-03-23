@@ -107,7 +107,7 @@ function App() {
               onClick={createSession}
               className="w-full py-2 bg-island-forest hover:opacity-80 text-island-sand border border-island-sand font-bold"
             >
-              [ РОЗПОЧАТИ НОВУ ЕКЕДИЦІЮ ]
+              [ РОЗПОЧАТИ НОВУ ЕКСПЕДИЦІЮ ]
             </button>
             <div className="flex space-x-2">
               <input 
@@ -150,7 +150,7 @@ function App() {
               {logs.map((log, i) => (
                 <div key={i} className="break-words">
                   <span className="opacity-40 mr-2">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
-                  {log.type === 'system' && <span className="text-island-forest italic">{log.message}</span>}
+                  {log.type === 'system' && <span className="text-island-forest italic">-- {log.message} --</span>}
                   {log.type === 'chat' && (
                     <>
                       <span className="text-island-ocean font-bold">{log.sender?.substring(0, 4)}: </span>
@@ -158,13 +158,13 @@ function App() {
                     </>
                   )}
                   {log.type === 'emote' && (
-                    <span className="text-pink-300 italic">
+                    <span className="text-pink-300" style={{ fontStyle: 'italic' }}>
                       * {log.sender?.substring(0, 4)} {log.message} *
                     </span>
                   )}
                   {log.type === 'roll' && (
-                    <span className="text-yellow-400 font-bold">
-                      [КУБИКИ] {log.sender?.substring(0, 4)} кинув {log.dice} та отримав результат: {log.result}
+                    <span className="text-yellow-400 font-bold bg-yellow-900/20 px-1">
+                      🎲 {log.sender?.substring(0, 4)} кинув {log.dice} та отримав результат: {log.result}
                     </span>
                   )}
                 </div>
