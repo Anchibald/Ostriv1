@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 
 interface LogEntry {
-  type: 'chat' | 'roll' | 'system';
+  type: 'chat' | 'roll' | 'system' | 'emote';
   sender?: string;
   message?: string;
   dice?: string;
@@ -107,7 +107,7 @@ function App() {
               onClick={createSession}
               className="w-full py-2 bg-island-forest hover:opacity-80 text-island-sand border border-island-sand font-bold"
             >
-              [ РОЗПОЧАТИ НОВУ ЕКСПЕДИЦІЮ ]
+              [ РОЗПОЧАТИ НОВУ ЕКЕДИЦІЮ ]
             </button>
             <div className="flex space-x-2">
               <input 
@@ -157,6 +157,11 @@ function App() {
                       <span>{log.message}</span>
                     </>
                   )}
+                  {log.type === 'emote' && (
+                    <span className="text-pink-300 italic">
+                      * {log.sender?.substring(0, 4)} {log.message} *
+                    </span>
+                  )}
                   {log.type === 'roll' && (
                     <span className="text-yellow-400 font-bold">
                       [КУБИКИ] {log.sender?.substring(0, 4)} кинув {log.dice} та отримав результат: {log.result}
@@ -171,7 +176,7 @@ function App() {
                 type="text" 
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Введіть команду або повідомлення..."
+                placeholder="Введіть команду (/roll, /emote) або повідомлення..."
                 className="flex-1 bg-island-wood border border-island-sand p-2 text-island-sand focus:outline-none text-sm"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') sendMessage()

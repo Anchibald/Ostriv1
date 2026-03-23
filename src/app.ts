@@ -27,7 +27,6 @@ export function buildApp(opts = {}) {
         if (sessions.has(sessionId)) {
           socket.join(sessionId);
           sessions.get(sessionId)!.players.push(socket.id);
-          
           fastify.io.to(sessionId).emit('player-joined', { playerId: socket.id });
           callback({ success: true });
         } else {
@@ -35,29 +34,53 @@ export function buildApp(opts = {}) {
         }
       });
 
-      // Надсилання текстового повідомлення
+      // Надсилання повідомлення або команди
       socket.on('send-message', ({ sessionId, message }) => {
-        if (sessions.has(sessionId)) {
-          fastify.io.to(sessionId).emit('new-log', {
-            type: 'chat',
-            sender: socket.id,
-            message,
-            timestamp: new Date().toISOString()
-          });
-        }
-      });
+        if (!sessions.has(sessionId)) return;
 
-      // Надсилання результату кидка кубика
-      socket.on('send-roll', ({ sessionId, dice, result }) => {
-        if (sessions.has(sessionId)) {
-          fastify.io.to(sessionId).emit('new-log', {
-            type: 'roll',
-            sender: socket.id,
-            dice,
-            result,
-            timestamp: new Date().toISOString()
-          });
+        // Перевірка на команди
+        if (message.startsWith('/')) {
+          const [command, ...args] = message.split(' ');
+          
+          if (command === '/roll') {
+            const dice = args[0] || '1d20';
+            const match = dice.match(/^(\d+)d(\d+)$/i);
+            if (match) {
+              const count = parseInt(match[1]);
+              const sides = parseInt(match[2]);
+              let result = 0;
+              for (let i = 0; i < count; i++) {
+                result += Math.floor(Math.random() * sides) + 1;
+              }
+              fastify.io.to(sessionId).emit('new-log', {
+                type: 'roll',
+                sender: socket.id,
+                dice,
+                result: result.toString(),
+                timestamp: new Date().toISOString()
+              });
+              return;
+            }
+          }
+
+          if (command === '/emote') {
+            fastify.io.to(sessionId).emit('new-log', {
+              type: 'emote',
+              sender: socket.id,
+              message: args.join(' '),
+              timestamp: new Date().toISOString()
+            });
+            return;
+          }
         }
+
+        // Звичайне текстове повідомлення
+        fastify.io.to(sessionId).emit('new-log', {
+          type: 'chat',
+          sender: socket.id,
+          message,
+          timestamp: new Date().toISOString()
+        });
       });
     });
   });
