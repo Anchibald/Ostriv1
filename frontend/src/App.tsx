@@ -53,6 +53,8 @@ function App() {
 
     newSocket.on('connect', () => {
       setConnected(true)
+      
+      // 1. Спробувати відновити сесію GM
       const savedGMData = localStorage.getItem('island_survival_gm');
       if (savedGMData) {
         const { sessionId: savedId, gmKey } = JSON.parse(savedGMData);
@@ -60,6 +62,22 @@ function App() {
           if (res.success) {
             setSessionId(savedId);
             setIsGM(true);
+            setLogs(res.session.logs);
+            setView('game');
+            return;
+          }
+        });
+      }
+
+      // 2. Спробувати відновити сесію Гравця
+      const savedPlayerData = localStorage.getItem('island_survival_player');
+      if (savedPlayerData) {
+        const { sessionId: savedId, name, startingItem } = JSON.parse(savedPlayerData);
+        newSocket.emit('join-session', { sessionId: savedId, name, startingItem }, (res: any) => {
+          if (res.success) {
+            setSessionId(savedId);
+            setIsGM(false);
+            setMyCharacter(res.session.players[res.characterId]);
             setLogs(res.session.logs);
             setView('game');
           }
@@ -70,8 +88,14 @@ function App() {
     newSocket.on('disconnect', () => setConnected(false))
     newSocket.on('new-log', (log: LogEntry) => setLogs((prev) => [...prev, log]))
     
+    newSocket.on('player-joined', (data: { character: Character }) => {
+      if (isGM) {
+         // GM може захотіти оновити список гравців (буде у Фазі 2)
+      }
+    })
+    
     return () => { newSocket.close() }
-  }, [])
+  }, [isGM])
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -92,6 +116,7 @@ function App() {
         setSessionId(res.sessionId)
         setIsGM(true)
         localStorage.setItem('island_survival_gm', JSON.stringify({ sessionId: res.sessionId, gmKey: res.gmKey }));
+        localStorage.removeItem('island_survival_player');
         setView('game')
       })
     }
@@ -124,6 +149,8 @@ function App() {
         if (res.success) {
           setMyCharacter(res.session.players[res.characterId]);
           setLogs(res.session.logs);
+          localStorage.setItem('island_survival_player', JSON.stringify({ sessionId, name, startingItem }));
+          localStorage.removeItem('island_survival_gm');
           setView('game');
         } else {
           alert('Помилка приєднання: ' + res.error);
@@ -146,14 +173,13 @@ function App() {
      setMyCharacter(null);
      setView('home');
      localStorage.removeItem('island_survival_gm');
+     localStorage.removeItem('island_survival_player');
   }
 
   return (
     <div className="min-h-screen w-full bg-island-wood text-island-sand font-mono flex flex-col items-center overflow-x-hidden">
-      {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/old-map.png')]"></div>
 
-      {/* Header */}
       <header className="w-full max-w-4xl flex flex-col items-center py-6 z-10">
         <h1 className="text-3xl md:text-5xl font-bold uppercase tracking-widest border-b-4 border-island-sand pb-2 mb-2 text-center drop-shadow-lg">
           Island Survival
@@ -161,7 +187,6 @@ function App() {
         <p className="text-[10px] md:text-xs opacity-60 uppercase tracking-[0.3em]">Logbook Digital System</p>
       </header>
 
-      {/* View: Home */}
       {view === 'home' && (
         <main className="flex-1 flex flex-col items-center justify-center z-10 space-y-8">
            <div className="bg-black/40 border-2 border-island-sand p-8 shadow-2xl backdrop-blur-sm max-w-sm w-full text-center space-y-6">
@@ -182,7 +207,6 @@ function App() {
         </main>
       )}
 
-      {/* View: GM Dashboard */}
       {view === 'gm_dashboard' && (
         <main className="flex-1 w-full max-w-4xl px-4 z-10 space-y-6">
            <div className="flex justify-between items-center">
@@ -228,7 +252,6 @@ function App() {
         </main>
       )}
 
-      {/* View: Join (Character Creation) */}
       {view === 'join' && (
         <main className="flex-1 w-full max-w-md px-4 z-10">
            <div className="bg-black/40 border-2 border-island-sand p-8 shadow-2xl space-y-6">
@@ -269,7 +292,7 @@ function App() {
                     const name = (document.getElementById('char-name') as HTMLInputElement).value;
                     const item = (document.getElementById('char-item') as HTMLInputElement).value;
                     if (name) joinSession(name, item);
-                    else alert('Введіть хоча б ім'я!');
+                    else alert('Введіть хоча б ім\'я!');
                   }}
                   className="w-full py-4 bg-island-ocean hover:bg-island-ocean/80 text-island-sand border border-island-sand font-bold transition-all uppercase"
                 >
@@ -281,10 +304,8 @@ function App() {
         </main>
       )}
 
-      {/* View: Game */}
       {view === 'game' && (
         <main className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-4 gap-4 flex-1 items-start px-4 z-10">
-          {/* Main Terminal Section */}
           <section className="md:col-span-3 flex flex-col space-y-2 order-1">
             <div className="flex justify-between items-center text-[10px] uppercase opacity-60 px-1">
                <div className="flex space-x-4">
@@ -348,14 +369,13 @@ function App() {
             </div>
           </section>
 
-          {/* Sidebar Area */}
           <aside className="md:col-span-1 space-y-4 order-2">
             <div className="bg-black/40 border border-island-sand p-4 rounded-sm shadow-xl backdrop-blur-sm">
                <h2 className="text-xs font-bold uppercase border-b border-island-sand/30 mb-3 pb-1">Поточний стан</h2>
                {isGM ? (
                  <div className="text-xs space-y-2">
                     <p className="text-island-ocean font-bold">Ви — Провідник</p>
-                    <p className="opacity-60 text-[10px]">Керуйте вижилими через команди або спеціальну панель (скоро).</p>
+                    <p className="opacity-60 text-[10px]">Очікуйте на нових вижилих...</p>
                  </div>
                ) : (
                  <div className="space-y-3 text-xs">
@@ -403,7 +423,6 @@ function App() {
         </main>
       )}
 
-      {/* Footer Decoration */}
       <footer className="mt-auto pt-8 pb-4 w-full max-w-4xl text-center opacity-40">
          <div className="h-px bg-gradient-to-r from-transparent via-island-sand/20 to-transparent w-full mb-4"></div>
          <p className="text-[10px] uppercase tracking-widest italic px-4">
