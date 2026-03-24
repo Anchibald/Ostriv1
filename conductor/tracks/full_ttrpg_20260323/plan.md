@@ -1,8 +1,8 @@
 # Implementation Plan: Island Survival TTRPG Full Features
 
 ## Phase 1: Session Management & Character Entry
-- [ ] **Task: Update Database Schema**
-    - [ ] Redesign `db.json` to store island names, session metadata, player stats, and inventory.
+- [x] **Task: Update Database Schema** (f03d7f2)
+    - [x] Redesign `db.json` to store island names, session metadata, player stats, and inventory.
 - [ ] **Task: Implement GM Dashboard (Session Manager)**
     - [ ] Create atmospheric UI with random island name generator.
     - [ ] List all sessions with "Manage as GM" and "Delete" functionality.
