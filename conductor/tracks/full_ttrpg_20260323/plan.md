@@ -6,9 +6,9 @@
 - [x] **Task: Implement GM Dashboard (Session Manager)** (bc7a0f9)
     - [x] Create atmospheric UI with random island name generator.
     - [x] List all sessions with "Manage as GM" and "Delete" functionality.
-- [ ] **Task: Character Creation & Join Logic**
-    - [ ] Implement player join form (Character Name + Starting Item).
-    - [ ] Add persistence for character identity (auto-reconnect player to character).
+- [x] **Task: Character Creation & Join Logic** (d35611a)
+    - [x] Implement player join form (Character Name + Starting Item).
+    - [x] Add persistence for character identity (auto-reconnect player to character).
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
 ## Phase 2: GM Real-time Control Panel
