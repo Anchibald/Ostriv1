@@ -2,6 +2,12 @@ import Fastify from 'fastify';
 import socketio from 'fastify-socket.io';
 import { JSONFilePreset } from 'lowdb/node';
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+}
+
 interface LogEntry {
   type: 'chat' | 'roll' | 'system' | 'emote';
   sender?: string;
@@ -11,15 +17,51 @@ interface LogEntry {
   timestamp: string;
 }
 
+interface Character {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  food: number;
+  water: number;
+  hasShelter: boolean;
+  inventory: InventoryItem[];
+}
+
 interface SessionData {
-  gm: string;
-  players: string[];
+  islandName: string;
+  gmKey: string;
+  createdAt: string;
+  day: number;
+  isNight: boolean;
+  timer: {
+    duration: number; // в секундах
+    remaining: number;
+    isRunning: boolean;
+  };
+  campInventory: {
+    food: number;
+    water: number;
+    items: InventoryItem[];
+  };
+  players: Record<string, Character>; // key is socket.id or a unique player identifier
   logs: LogEntry[];
 }
 
 interface Data {
   sessions: Record<string, SessionData>;
 }
+
+const ISLAND_NAMES = [
+  "Острів Загублених Душ",
+  "Берег Скелетів",
+  "Туманна Бухта",
+  "Риф Одинака",
+  "Зелений Пекло",
+  "Острів Диких Квітів",
+  "Скеля Бур",
+  "Затока Спокою"
+];
 
 export function buildApp(opts = {}) {
   const fastify = Fastify(opts);
@@ -30,7 +72,6 @@ export function buildApp(opts = {}) {
     }
   });
 
-  // Ініціалізація бази даних
   const defaultData: Data = { sessions: {} };
   let db: any;
 
@@ -48,45 +89,87 @@ export function buildApp(opts = {}) {
       // GM створює нову сесію
       socket.on('create-session', async (callback) => {
         const sessionId = Math.random().toString(36).substring(2, 9);
-        database.data.sessions[sessionId] = { 
-          gm: socket.id, 
-          players: [], 
+        const gmKey = Math.random().toString(36).substring(2, 15);
+        const islandName = ISLAND_NAMES[Math.floor(Math.random() * ISLAND_NAMES.length)];
+        
+        const newSession: SessionData = {
+          islandName,
+          gmKey,
+          createdAt: new Date().toISOString(),
+          day: 1,
+          isNight: false,
+          timer: { duration: 0, remaining: 0, isRunning: false },
+          campInventory: { food: 0, water: 0, items: [] },
+          players: {},
           logs: [{
             type: 'system',
-            message: `Експедиція розпочалася. ID: ${sessionId}`,
+            message: `Експедиція на ${islandName} розпочалася. ID: ${sessionId}`,
             timestamp: new Date().toISOString()
-          }] 
+          }]
         };
+
+        database.data.sessions[sessionId] = newSession;
         await database.write();
         socket.join(sessionId);
-        callback({ sessionId });
+        callback({ sessionId, gmKey, islandName });
       });
 
-      // Гравець приєднується до сесії
-      socket.on('join-session', async ({ sessionId }, callback) => {
+      // Перевірка прав Провідника (GM)
+      socket.on('reconnect-gm', async ({ sessionId, gmKey }, callback) => {
+        const session = database.data.sessions[sessionId];
+        if (session && session.gmKey === gmKey) {
+          socket.join(sessionId);
+          callback({ success: true, session });
+        } else {
+          callback({ success: false });
+        }
+      });
+
+      // Гравець створює персонажа та приєднується
+      socket.on('join-session', async ({ sessionId, name, startingItem }, callback) => {
         const session = database.data.sessions[sessionId];
         if (session) {
           socket.join(sessionId);
-          if (!session.players.includes(socket.id)) {
-            session.players.push(socket.id);
+          
+          // Якщо гравець вже в сесії (за іменем, для простоти MVP), повертаємо його
+          let character = Object.values(session.players).find(p => p.name === name);
+          
+          if (!character) {
+            character = {
+              id: socket.id,
+              name,
+              hp: 10,
+              maxHp: 10,
+              food: 3,
+              water: 3,
+              hasShelter: false,
+              inventory: startingItem ? [{ id: Math.random().toString(36).substring(7), name: startingItem, quantity: 1 }] : []
+            };
+            session.players[socket.id] = character;
+            
+            session.logs.push({
+              type: 'system',
+              message: `${name} приєднався до виживання, маючи при собі: ${startingItem || 'нічого'}`,
+              timestamp: new Date().toISOString()
+            });
+            
             await database.write();
+            fastify.io.to(sessionId).emit('player-joined', { character });
           }
           
-          fastify.io.to(sessionId).emit('player-joined', { playerId: socket.id });
-          
-          // Надсилаємо історію логів новому гравцеві
-          callback({ success: true, history: session.logs });
+          callback({ success: true, session, characterId: character.id });
         } else {
           callback({ success: false, error: 'Session not found' });
         }
       });
 
-      // Надсилання повідомлення або команди
       socket.on('send-message', async ({ sessionId, message }) => {
         const session = database.data.sessions[sessionId];
         if (!session) return;
 
         let log: LogEntry;
+        const senderChar = session.players[socket.id];
+        const displayName = senderChar ? senderChar.name : (session.gmKey ? 'Провідник' : '???');
 
         if (message.startsWith('/')) {
           const [command, ...args] = message.split(' ');
@@ -103,28 +186,28 @@ export function buildApp(opts = {}) {
               }
               log = {
                 type: 'roll',
-                sender: socket.id,
+                sender: displayName,
                 dice,
                 result: result.toString(),
                 timestamp: new Date().toISOString()
               };
             } else {
-               log = { type: 'chat', sender: socket.id, message, timestamp: new Date().toISOString() };
+               log = { type: 'chat', sender: displayName, message, timestamp: new Date().toISOString() };
             }
           } else if (command === '/emote') {
             log = {
               type: 'emote',
-              sender: socket.id,
+              sender: displayName,
               message: args.join(' '),
               timestamp: new Date().toISOString()
             };
           } else {
-            log = { type: 'chat', sender: socket.id, message, timestamp: new Date().toISOString() };
+            log = { type: 'chat', sender: displayName, message, timestamp: new Date().toISOString() };
           }
         } else {
           log = {
             type: 'chat',
-            sender: socket.id,
+            sender: displayName,
             message,
             timestamp: new Date().toISOString()
           };
