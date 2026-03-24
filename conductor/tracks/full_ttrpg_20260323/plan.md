@@ -3,9 +3,9 @@
 ## Phase 1: Session Management & Character Entry
 - [x] **Task: Update Database Schema** (f03d7f2)
     - [x] Redesign `db.json` to store island names, session metadata, player stats, and inventory.
-- [ ] **Task: Implement GM Dashboard (Session Manager)**
-    - [ ] Create atmospheric UI with random island name generator.
-    - [ ] List all sessions with "Manage as GM" and "Delete" functionality.
+- [x] **Task: Implement GM Dashboard (Session Manager)** (bc7a0f9)
+    - [x] Create atmospheric UI with random island name generator.
+    - [x] List all sessions with "Manage as GM" and "Delete" functionality.
 - [ ] **Task: Character Creation & Join Logic**
     - [ ] Implement player join form (Character Name + Starting Item).
     - [ ] Add persistence for character identity (auto-reconnect player to character).
