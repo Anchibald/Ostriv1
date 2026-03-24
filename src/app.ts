@@ -35,7 +35,7 @@ interface SessionData {
   day: number;
   isNight: boolean;
   timer: {
-    duration: number; // в секундах
+    duration: number;
     remaining: number;
     isRunning: boolean;
   };
@@ -44,7 +44,7 @@ interface SessionData {
     water: number;
     items: InventoryItem[];
   };
-  players: Record<string, Character>; // key is socket.id or a unique player identifier
+  players: Record<string, Character>;
   logs: LogEntry[];
 }
 
@@ -86,6 +86,17 @@ export function buildApp(opts = {}) {
     const database = await getDb();
 
     fastify.io.on('connection', (socket) => {
+      // GM отримує список своїх сесій (за gmKey, але для MVP поки що всі сесії)
+      socket.on('get-sessions', async (callback) => {
+        const sessionsList = Object.entries(database.data.sessions).map(([id, data]: [string, any]) => ({
+          id,
+          islandName: data.islandName,
+          createdAt: data.createdAt,
+          playersCount: Object.keys(data.players).length
+        }));
+        callback(sessionsList);
+      });
+
       // GM створює нову сесію
       socket.on('create-session', async (callback) => {
         const sessionId = Math.random().toString(36).substring(2, 9);
@@ -114,6 +125,18 @@ export function buildApp(opts = {}) {
         callback({ sessionId, gmKey, islandName });
       });
 
+      // GM видаляє сесію
+      socket.on('delete-session', async ({ sessionId, gmKey }, callback) => {
+        const session = database.data.sessions[sessionId];
+        if (session && session.gmKey === gmKey) {
+          delete database.data.sessions[sessionId];
+          await database.write();
+          callback({ success: true });
+        } else {
+          callback({ success: false });
+        }
+      });
+
       // Перевірка прав Провідника (GM)
       socket.on('reconnect-gm', async ({ sessionId, gmKey }, callback) => {
         const session = database.data.sessions[sessionId];
@@ -130,8 +153,6 @@ export function buildApp(opts = {}) {
         const session = database.data.sessions[sessionId];
         if (session) {
           socket.join(sessionId);
-          
-          // Якщо гравець вже в сесії (за іменем, для простоти MVP), повертаємо його
           let character = Object.values(session.players).find(p => p.name === name);
           
           if (!character) {
